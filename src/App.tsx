@@ -46,7 +46,17 @@ const KhoThuoc = () => {
     newRetailPriceRef: useRef(null),
   };
 
-  const handleKeyDown = (e, nextRef) => {
+import React, { KeyboardEvent, RefObject } from "react";
+
+const handleKeyDown = (
+  e: KeyboardEvent<HTMLInputElement>,
+  nextRef: RefObject<HTMLInputElement>
+) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    nextRef?.current?.focus();
+  }
+};
     if (e.key === "Enter") {
       e.preventDefault();
       nextRef.current?.focus();
