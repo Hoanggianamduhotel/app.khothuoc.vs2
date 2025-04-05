@@ -1,4 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, {
+  useState,
+  useRef,
+  KeyboardEvent,
+  RefObject,
+} from "react";
 
 const KhoThuoc = () => {
   const [thuocList, setThuocList] = useState([
@@ -20,7 +25,6 @@ const KhoThuoc = () => {
       importPrice: 2000,
       retailPrice: 3500,
     },
-    // Các thuốc khác...
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,38 +40,33 @@ const KhoThuoc = () => {
   });
 
   const inputRefs = {
-    quantityToAddRef: useRef(null),
-    newNameRef: useRef(null),
-    newCodeRef: useRef(null),
-    newFormRef: useRef(null),
-    newRouteRef: useRef(null),
-    newStockRef: useRef(null),
-    newImportPriceRef: useRef(null),
-    newRetailPriceRef: useRef(null),
+    quantityToAddRef: useRef<HTMLInputElement>(null),
+    saveButtonRef: useRef<HTMLButtonElement>(null),
+    newNameRef: useRef<HTMLInputElement>(null),
+    newCodeRef: useRef<HTMLInputElement>(null),
+    newFormRef: useRef<HTMLInputElement>(null),
+    newRouteRef: useRef<HTMLInputElement>(null),
+    newStockRef: useRef<HTMLInputElement>(null),
+    newImportPriceRef: useRef<HTMLInputElement>(null),
+    newRetailPriceRef: useRef<HTMLInputElement>(null),
+    addNewThuocButtonRef: useRef<HTMLButtonElement>(null),
   };
 
-import React, { KeyboardEvent, RefObject } from "react";
-
-const handleKeyDown = (
-  e: KeyboardEvent<HTMLInputElement>,
-  nextRef: RefObject<HTMLInputElement>
-) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    nextRef?.current?.focus();
-  }
-};
+  const handleKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    nextRef: RefObject<HTMLElement>
+  ) => {
     if (e.key === "Enter") {
       e.preventDefault();
       nextRef.current?.focus();
     }
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleQuantityChange = (e) => {
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuantityToAdd(e.target.value);
   };
 
@@ -83,7 +82,7 @@ const handleKeyDown = (
       return thuoc;
     });
     setThuocList(updatedList);
-    setQuantityToAdd(""); 
+    setQuantityToAdd("");
   };
 
   const handleAddNewThuoc = () => {
@@ -99,7 +98,11 @@ const handleKeyDown = (
     });
   };
 
-  const handleEditThuoc = (index, field, value) => {
+  const handleEditThuoc = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
     const updatedList = [...thuocList];
     updatedList[index][field] = value;
     setThuocList(updatedList);
@@ -159,62 +162,20 @@ const handleKeyDown = (
         <tbody>
           {filteredThuocList.map((thuoc, index) => (
             <tr key={index} className="border-b">
-              <td className="px-4 py-2">
-                <input
-                  type="text"
-                  value={thuoc.name}
-                  onChange={(e) => handleEditThuoc(index, "name", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="text"
-                  value={thuoc.code}
-                  onChange={(e) => handleEditThuoc(index, "code", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="text"
-                  value={thuoc.form}
-                  onChange={(e) => handleEditThuoc(index, "form", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="text"
-                  value={thuoc.route}
-                  onChange={(e) => handleEditThuoc(index, "route", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="number"
-                  value={thuoc.stock}
-                  onChange={(e) => handleEditThuoc(index, "stock", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="number"
-                  value={thuoc.importPrice}
-                  onChange={(e) => handleEditThuoc(index, "importPrice", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
-              <td className="px-4 py-2">
-                <input
-                  type="number"
-                  value={thuoc.retailPrice}
-                  onChange={(e) => handleEditThuoc(index, "retailPrice", e.target.value)}
-                  className="p-2 border rounded"
-                />
-              </td>
+              {["name", "code", "form", "route", "stock", "importPrice", "retailPrice"].map(
+                (field, i) => (
+                  <td key={i} className="px-4 py-2">
+                    <input
+                      type={["stock", "importPrice", "retailPrice"].includes(field) ? "number" : "text"}
+                      value={thuoc[field]}
+                      onChange={(e) =>
+                        handleEditThuoc(index, field, e.target.value)
+                      }
+                      className="p-2 border rounded"
+                    />
+                  </td>
+                )
+              )}
               <td className="px-4 py-2">
                 <button
                   onClick={() => alert("Chỉnh sửa thuốc")}
@@ -236,7 +197,9 @@ const handleKeyDown = (
             ref={inputRefs.newNameRef}
             type="text"
             value={newThuoc.name}
-            onChange={(e) => setNewThuoc({ ...newThuoc, name: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, name: e.target.value })
+            }
             placeholder="Tên Thuốc"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newCodeRef)}
@@ -245,7 +208,9 @@ const handleKeyDown = (
             ref={inputRefs.newCodeRef}
             type="text"
             value={newThuoc.code}
-            onChange={(e) => setNewThuoc({ ...newThuoc, code: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, code: e.target.value })
+            }
             placeholder="Mã Thuốc"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newFormRef)}
@@ -254,7 +219,9 @@ const handleKeyDown = (
             ref={inputRefs.newFormRef}
             type="text"
             value={newThuoc.form}
-            onChange={(e) => setNewThuoc({ ...newThuoc, form: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, form: e.target.value })
+            }
             placeholder="Dạng"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newRouteRef)}
@@ -263,7 +230,9 @@ const handleKeyDown = (
             ref={inputRefs.newRouteRef}
             type="text"
             value={newThuoc.route}
-            onChange={(e) => setNewThuoc({ ...newThuoc, route: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, route: e.target.value })
+            }
             placeholder="Đường Dùng"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newStockRef)}
@@ -272,7 +241,9 @@ const handleKeyDown = (
             ref={inputRefs.newStockRef}
             type="number"
             value={newThuoc.stock}
-            onChange={(e) => setNewThuoc({ ...newThuoc, stock: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, stock: e.target.value })
+            }
             placeholder="Số Lượng Tồn"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newImportPriceRef)}
@@ -281,7 +252,9 @@ const handleKeyDown = (
             ref={inputRefs.newImportPriceRef}
             type="number"
             value={newThuoc.importPrice}
-            onChange={(e) => setNewThuoc({ ...newThuoc, importPrice: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, importPrice: e.target.value })
+            }
             placeholder="Giá Nhập"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.newRetailPriceRef)}
@@ -290,7 +263,9 @@ const handleKeyDown = (
             ref={inputRefs.newRetailPriceRef}
             type="number"
             value={newThuoc.retailPrice}
-            onChange={(e) => setNewThuoc({ ...newThuoc, retailPrice: e.target.value })}
+            onChange={(e) =>
+              setNewThuoc({ ...newThuoc, retailPrice: e.target.value })
+            }
             placeholder="Giá Bán Lẻ"
             className="p-2 border rounded"
             onKeyDown={(e) => handleKeyDown(e, inputRefs.addNewThuocButtonRef)}
@@ -309,4 +284,3 @@ const handleKeyDown = (
 };
 
 export default KhoThuoc;
-
